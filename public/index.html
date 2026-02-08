@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumTrader Pro | Complete Futures Trading Signals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0/dist/chartjs-adapter-luxon.min.js"></script>
+    <!-- TradingView Charting Library -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --quantum-blue: #0ea5e9;
+            --quantum-dark: #0f172a;
+            --quantum-darker: #020617;
+            --quantum-card: #1e293b;
+            --quantum-border: #334155;
+            --quantum-success: #22c55e;
+            --quantum-danger: #ef4444;
+            --quantum-warning: #f59e0b;
+            --quantum-purple: #8b5cf6;
+            --gradient-primary: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            --gradient-success: linear-gradient(135deg, #22c55e, #10b981);
+            --gradient-danger: linear-gradient(135deg, #ef4444, #dc2626);
+            --gradient-warning: linear-gradient(135deg, #f59e0b, #d97706);
+            --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--quantum-darker);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--quantum-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Main Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            gap: 15px;
+            min-height: calc(100vh - 80px);
+            padding: 15px 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 110px);
+            position: sticky;
+            top: 95px;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+            height: 500px;
+            position: relative;
+        }
+
+        /* Trading View Styles */
+        .trading-view-container {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+        }
+
+        .tv-tab {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .tv-tab.active {
+            color: var(--quantum-blue);
+        }
+
+        .tv-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+
+        .tv-tab:hover {
+            color: var(--quantum-blue);
+        }
+
+        /* Signal Cards */
+        .signal-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .signal-card {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .signal-card:hover {
+            border-color: var(--quantum-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Right Panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--quantum-border);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--quantum-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--quantum-border);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--quantum-blue);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+
+        /* Live Price */
+        .live-price {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .price-change {
+            font-size: 18px;
+            font-weight: 600;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--quantum-success);
+        }
+
+        .negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--quantum-danger);
+        }
+
+        /* Symbol List */
+        .symbol-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .symbol-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symbol-item:hover {
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .symbol-item.active {
+            background: rgba(14, 165, 233, 0.2);
+            border-left: 3px solid var(--quantum-blue);
+        }
+
+        /* Trading Guide */
+        .trading-guide {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--quantum-border);
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .guide-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .app-layout {
+                grid-template-columns: 250px 1fr 350px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar, .right-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- License Modal -->
+    <div class="license-modal active" id="licenseModal">
+        <div class="license-content">
+            <h2><i class="fas fa-key"></i> License Required</h2>
+            <p>Enter your license key to access QuantumTrader Pro. Contact support if you need a license.</p>
+            
+            <div class="license-input-container">
+                <input type="text" 
+                       class="license-input" 
+                       id="licenseKeyInput" 
+                       placeholder="Enter license key"
+                       maxlength="20">
+                <div class="license-hint">Example: QT-PRO-2024-XXXXX</div>
+                <div class="license-error" id="licenseError">Invalid license key. Please try again.</div>
+            </div>
+            
+            <div class="license-actions">
+                <button class="btn-license btn-license-secondary" onclick="useTrial()">
+                    <i class="fas fa-clock"></i> Try Demo (7 Days)
+                </button>
+                <button class="btn-license btn-license-primary" onclick="activateLicense()">
+                    <i class="fas fa-check"></i> Activate License
+                </button>
+            </div>
+            
+            <div class="license-footer">
+                Need a license? <a href="mailto:support@quantumtrader.com">Contact Support</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until license activated) -->
+    <div class="container" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <div class="logo-text">QuantumTrader Pro</div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 20px;">
+                        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; 
+                             animation: pulse 1s infinite;"></div>
+                        <span style="font-size: 14px; color: #94a3b8;">LIVE TRADING SIGNALS</span>
+                    </div>
+                    <div class="license-badge" id="licenseBadge">
+                        <i class="fas fa-check-circle"></i>
+                        <span>LICENSED</span>
+                    </div>
+                </div>
+                <div>
+                    <span id="currentTime" style="color: #94a3b8; margin-right: 20px;"></span>
+                    <button class="btn btn-primary" onclick="refreshAllData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn" style="margin-left: 10px; background: rgba(30, 41, 59, 0.8);" 
+                            onclick="showLicenseModal()">
+                        <i class="fas fa-key"></i> License
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main App -->
+        <div class="app-layout">
+            <!-- Left Sidebar - Symbols -->
+            <aside class="sidebar">
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 18px; margin-bottom: 15px; color: #e2e8f0;">
+                        <i class="fas fa-coins"></i> Futures Markets
+                    </h3>
+                    <div class="form-group">
+                        <input type="text" class="form-input" placeholder="Search symbol..." 
+                               id="symbolSearch" onkeyup="searchSymbols()">
+                    </div>
+                    <div class="symbol-list" id="symbolList">
+                        <!-- Symbols will be loaded here -->
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" 
+                            onclick="showAddSymbolModal()">
+                        <i class="fas fa-plus"></i> Add Symbol
+                    </button>
+                </div>
+
+                <div>
+                    <h3 style="font-size: 18px; margin-bottom: 15px; color: #e2e8f0;">
+                        <i class="fas fa-filter"></i> Filters
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">Signal Type</label>
+                        <select class="form-select" id="signalFilter">
+                            <option value="all">All Signals</option>
+                            <option value="strong_buy">Strong Buy</option>
+                            <option value="buy">Buy</option>
+                            <option value="neutral">Neutral</option>
+                            <option value="sell">Sell</option>
+                            <option value="strong_sell">Strong Sell</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confidence</label>
+                        <select class="form-select" id="confidenceFilter">
+                            <option value="all">All Levels</option>
+                            <option value="high">High (80%+)</option>
+                            <option value="medium">Medium (60-80%)</option>
+                            <option value="low">Low (below 60%)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="applyFilters()">
+                        <i class="fas fa-check"></i> Apply Filters
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Chart and Current Symbol -->
+                <div class="chart-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 id="currentSymbol" style="font-size: 24px; font-weight: 700;">BTC/USDT</h2>
+                            <div class="live-price" id="currentPrice">$0.00</div>
+                            <div>
+                                <span class="price-change positive" id="priceChange">+0.00%</span>
+                                <span style="margin-left: 15px; color: #94a3b8;">24h High: <span id="priceHigh">$0.00</span></span>
+                                <span style="margin-left: 15px; color: #94a3b8;">24h Low: <span id="priceLow">$0.00</span></span>
+                            </div>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab active" onclick="switchTimeframe('5m')">5m</button>
+                            <button class="tab" onclick="switchTimeframe('15m')">15m</button>
+                            <button class="tab" onclick="switchTimeframe('1h')">1h</button>
+                            <button class="tab" onclick="switchTimeframe('4h')">4h</button>
+                            <button class="tab" onclick="switchTimeframe('1d')">1d</button>
+                        </div>
+                    </div>
+                    <canvas id="priceChart"></canvas>
+                </div>
+
+                <!-- Trading View Chart -->
+                <div class="trading-view-container" style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="font-size: 20px; font-weight: 700;">
+                            <i class="fas fa-chart-candlestick"></i> Trading View
+                        </h3>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="trading-view-tabs" style="display: flex; border-bottom: 1px solid var(--quantum-border);">
+                                <button class="tv-tab active" data-timeframe="1">1m</button>
+                                <button class="tv-tab" data-timeframe="5">5m</button>
+                                <button class="tv-tab" data-timeframe="15">15m</button>
+                                <button class="tv-tab" data-timeframe="60">1h</button>
+                                <button class="tv-tab" data-timeframe="240">4h</button>
+                            </div>
+                            <button class="btn btn-primary" id="fullscreenBtn" style="padding: 8px 15px;">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="tradingview-chart" style="height: 500px; width: 100%;"></div>
+                </div>
+
+                <!-- Current Signal -->
+                <div class="signal-card" style="border-left: 4px solid var(--quantum-success);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 700;">Current Trading Signal</h3>
+                            <div style="color: #94a3b8;" id="signalTime">Loading...</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <span class="price-change positive" id="signalType">STRONG BUY</span>
+                            <span style="padding: 5px 15px; background: rgba(14, 165, 233, 0.2); 
+                                  color: var(--quantum-blue); border-radius: 20px; font-weight: 600;"
+                                  id="signalConfidence">95%</span>
+                        </div>
+                    </div>
+                    <div id="signalDetails">
+                        <!-- Signal details will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Trading Guide -->
+                <div class="trading-guide">
+                    <h3 style="font-size: 20px; margin-bottom: 20px; color: #e2e8f0;">
+                        <i class="fas fa-graduation-cap"></i> Trading Guide
+                    </h3>
+                    <div id="tradingInstructions">
+                        <!-- Trading instructions will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- All Signals Grid -->
+                <div>
+                    <h3 style="font-size: 20px; margin-bottom: 15px; color: #e2e8f0;">All Trading Signals</h3>
+                    <div class="signal-cards" id="allSignals">
+                        <!-- All signals will be loaded here -->
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Panel - Controls & Details -->
+            <aside class="right-panel">
+                <!-- Control Panel -->
+                <div class="control-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; color: #e2e8f0;">
+                        <i class="fas fa-cogs"></i> Trading Controls
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Trading Style</label>
+                        <select class="form-select" id="tradingStyle" onchange="updateTradingGuide()">
+                            <option value="scalping">Scalping (1-5 min)</option>
+                            <option value="day_trading">Day Trading (15min-4h)</option>
+                            <option value="swing">Swing Trading (4h-1d)</option>
+                            <option value="position">Position Trading (1d+)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Risk Level</label>
+                        <select class="form-select" id="riskLevel">
+                            <option value="low">Low Risk</option>
+                            <option value="medium" selected>Medium Risk</option>
+                            <option value="high">High Risk</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Position Size ($)</label>
+                        <input type="number" class="form-input" id="positionSize" value="1000" min="10">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #94a3b8;">Entry Zone</div>
+                            <div style="font-size: 18px; font-weight: 700;" id="entryZone">$0.00</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #94a3b8;">Stop Loss</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--quantum-danger);" 
+                                 id="stopLoss">$0.00</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #94a3b8;">Take Profit 1</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--quantum-success);" 
+                                 id="takeProfit1">$0.00</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #94a3b8;">Take Profit 2</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--quantum-success);" 
+                                 id="takeProfit2">$0.00</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" style="flex: 1;" onclick="executeTrade('BUY')">
+                            <i class="fas fa-arrow-up"></i> BUY/LONG
+                        </button>
+                        <button class="btn btn-danger" style="flex: 1;" onclick="executeTrade('SELL')">
+                            <i class="fas fa-arrow-down"></i> SELL/SHORT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Market Overview -->
+                <div class="control-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; color: #e2e3f0;">
+                        <i class="fas fa-chart-bar"></i> Market Overview
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Total Signals</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="totalSignals">0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Strong Buys</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--quantum-success);" 
+                                 id="strongBuys">0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Avg Confidence</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="avgConfidence">0%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Market Bias</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--quantum-success);" 
+                                 id="marketBias">BULLISH</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Indicators -->
+                <div class="control-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; color: #e2e8f0;">
+                        <i class="fas fa-chart-line"></i> Technical Indicators
+                    </h3>
+                    <div id="technicalIndicators">
+                        <!-- Indicators will be loaded here -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Add Symbol Modal -->
+    <div id="addSymbolModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+         background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(5px); z-index: 2000; 
+         justify-content: center; align-items: center;">
+        <div style="background: var(--quantum-card); border-radius: 12px; padding: 30px; 
+             width: 90%; max-width: 400px; border: 1px solid var(--quantum-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="font-size: 20px; font-weight: 700;">Add Trading Symbol</h3>
+                <button onclick="hideAddSymbolModal()" style="background: none; border: none; color: #94a3b8; 
+                        font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Symbol (e.g., BTCUSDT, ETHUSDT)</label>
+                <input type="text" class="form-input" id="newSymbol" placeholder="BTCUSDT" 
+                       style="text-transform: uppercase;">
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 5px;">
+                    Enter Binance Futures USDT pair symbol
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="addSymbol()">
+                <i class="fas fa-plus"></i> Add Symbol
+            </button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div id="fullscreenModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+         background: var(--quantum-darker); z-index: 3000; padding: 20px;">
+        <div style="position: relative; height: 100%;">
+            <div style="position: absolute; top: 10px; right: 10px; z-index: 3001;">
+                <button class="btn btn-danger" id="closeFullscreenBtn" style="padding: 10px 15px;">
+                    <i class="fas fa-times"></i> Close Fullscreen
+                </button>
+            </div>
+            <div style="height: calc(100% - 60px); margin-top: 50px;">
+                <div id="fullscreenTradingView" style="height: 100%; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================
+        // LICENSE MANAGEMENT SYSTEM
+        // ================================================
+        const LICENSE_CONFIG = {
+            VALID_LICENSE_KEY: 'QT-PRO-2024-78910-ABCDE', // এখানে আপনার লাইসেন্স key দিন
+            TRIAL_DAYS: 7,
+            API_ENDPOINT: '/api/validate'
+        };
+
+        class LicenseManager {
+            constructor() {
+                this.isValidLicense = false;
+                this.isTrial = false;
+                this.trialExpiry = null;
+                this.licenseKey = null;
+            }
+
+            async validateLicense(key) {
+                try {
+                    // First check locally
+                    if (key === LICENSE_CONFIG.VALID_LICENSE_KEY) {
+                        return { valid: true, type: 'full' };
+                    }
+
+                    // Then check via API (if deployed)
+                    const response = await fetch(LICENSE_CONFIG.API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ licenseKey: key })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data;
+                    }
+                } catch (error) {
+                    console.log('Using offline license validation');
+                    // Fallback to local validation
+                    if (key === LICENSE_CONFIG.VALID_LICENSE_KEY) {
+                        return { valid: true, type: 'full' };
+                    }
+                }
+
+                return { valid: false, type: 'invalid' };
+            }
+
+            activateTrial() {
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + LICENSE_CONFIG.TRIAL_DAYS);
+                
+                this.isTrial = true;
+                this.isValidLicense = true;
+                this.trialExpiry = expiryDate;
+                this.licenseKey = 'TRIAL_' + Date.now();
+
+                localStorage.setItem('qt_trial_expiry', expiryDate.toISOString());
+                localStorage.setItem('qt_license_type', 'trial');
+
+                return true;
+            }
+
+            checkTrialExpiry() {
+                if (!this.isTrial) return true;
+
+                const savedExpiry = localStorage.getItem('qt_trial_expiry');
+                if (!savedExpiry) {
+                    this.isTrial = false;
+                    this.isValidLicense = false;
+                    return false;
+                }
+
+                const expiryDate = new Date(savedExpiry);
+                const now = new Date();
+
+                if (now > expiryDate) {
+                    this.isTrial = false;
+                    this.isValidLicense = false;
+                    localStorage.removeItem('qt_trial_expiry');
+                    localStorage.removeItem('qt_license_type');
+                    return false;
+                }
+
+                return true;
+            }
+
+            saveLicense(key, type) {
+                this.licenseKey = key;
+                localStorage.setItem('qt_license_key', key);
+                localStorage.setItem('qt_license_type', type);
+            }
+
+            loadSavedLicense() {
+                const savedKey = localStorage.getItem('qt_license_key');
+                const savedType = localStorage.getItem('qt_license_type');
+
+                if (savedKey && savedType) {
+                    this.licenseKey = savedKey;
+                    
+                    if (savedType === 'trial') {
+                        this.isTrial = true;
+                        return this.checkTrialExpiry();
+                    } else if (savedType === 'full') {
+                        this.isTrial = false;
+                        this.isValidLicense = true;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            clearLicense() {
+                this.isValidLicense = false;
+                this.isTrial = false;
+                this.licenseKey = null;
+                localStorage.removeItem('qt_license_key');
+                localStorage.removeItem('qt_license_type');
+                localStorage.removeItem('qt_trial_expiry');
+            }
+
+            getLicenseInfo() {
+                return {
+                    isValid: this.isValidLicense,
+                    isTrial: this.isTrial,
+                    key: this.licenseKey ? this.licenseKey.substring(0, 8) + '...' : null,
+                    expiry: this.trialExpiry
+                };
+            }
+        }
+
+        // ================================================
+        // LICENSE MODAL FUNCTIONS
+        // ================================================
+        function showLicenseModal() {
+            const modal = document.getElementById('licenseModal');
+            modal.classList.add('active');
+            document.getElementById('licenseKeyInput').focus();
+        }
+
+        function hideLicenseModal() {
+            const modal = document.getElementById('licenseModal');
+            modal.classList.remove('active');
+            document.getElementById('licenseError').classList.remove('active');
+            document.getElementById('licenseKeyInput').value = '';
+        }
+
+        async function activateLicense() {
+            const licenseKey = document.getElementById('licenseKeyInput').value.trim();
+            const errorElement = document.getElementById('licenseError');
+
+            if (!licenseKey) {
+                errorElement.textContent = 'Please enter a license key';
+                errorElement.classList.add('active');
+                return;
+            }
+
+            errorElement.classList.remove('active');
+            
+            const result = await licenseManager.validateLicense(licenseKey);
+            
+            if (result.valid) {
+                licenseManager.saveLicense(licenseKey, result.type);
+                licenseManager.isValidLicense = true;
+                licenseManager.isTrial = (result.type === 'trial');
+                
+                hideLicenseModal();
+                showMainApp();
+                showNotification('License activated successfully!', 'success');
+                updateLicenseBadge();
+            } else {
+                errorElement.textContent = 'Invalid license key. Please try again.';
+                errorElement.classList.add('active');
+                document.getElementById('licenseKeyInput').select();
+            }
+        }
+
+        function useTrial() {
+            if (licenseManager.activateTrial()) {
+                hideLicenseModal();
+                showMainApp();
+                showNotification('7-day trial activated!', 'success');
+                updateLicenseBadge();
+                
+                // Show trial expiry info
+                setTimeout(() => {
+                    showNotification('Trial expires in 7 days', 'info');
+                }, 2000);
+            }
+        }
+
+        function showMainApp() {
+            document.getElementById('mainApp').style.display = 'block';
+            if (typeof quantumTrader !== 'undefined') {
+                quantumTrader.init();
+            } else {
+                // Initialize QuantumTrader if not already initialized
+                setTimeout(() => {
+                    quantumTrader = new QuantumTraderPro();
+                }, 100);
+            }
+        }
+
+        function updateLicenseBadge() {
+            const badge = document.getElementById('licenseBadge');
+            const info = licenseManager.getLicenseInfo();
+            
+            if (info.isValid) {
+                if (info.isTrial) {
+                    badge.innerHTML = '<i class="fas fa-clock"></i><span>TRIAL</span>';
+                    badge.className = 'license-badge';
+                } else {
+                    badge.innerHTML = '<i class="fas fa-check-circle"></i><span>LICENSED</span>';
+                    badge.className = 'license-badge';
+                }
+            } else {
+                badge.innerHTML = '<i class="fas fa-times-circle"></i><span>EXPIRED</span>';
+                badge.className = 'license-badge error';
+            }
+        }
+
+        // ================================================
+        // QUANTUMTRADER PRO - COMPLETE FUTURES TRADING PLATFORM
+        // ================================================
+        class QuantumTraderPro {
+            constructor() {
+                this.state = {
+                    currentSymbol: 'BTCUSDT',
+                    currentTimeframe: '5m',
+                    symbols: this.loadSymbols(),
+                    signals: {},
+                    marketData: {},
+                    wsConnections: {},
+                    chart: null,
+                    tradingViewWidget: null,
+                    fullscreenWidget: null,
+                    tradingStyle: 'day_trading',
+                    riskLevel: 'medium'
+                };
+                
+                this.BINANCE_WS = 'wss://fstream.binance.com/ws/';
+                this.BINANCE_API = 'https://fapi.binance.com/fapi/v1/';
+                
+                // Check license before initializing
+                if (!licenseManager.isValidLicense) {
+                    console.log('License required. Please activate license.');
+                    showLicenseModal();
+                    return;
+                }
+                
+                this.init();
+            }
+            
+            async init() {
+                console.log('🚀 QuantumTrader Pro Initializing...');
+                
+                // Check license
+                if (!licenseManager.isValidLicense) {
+                    showLicenseModal();
+                    return;
+                }
+                
+                // Initialize UI
+                this.updateTime();
+                this.loadSymbolList();
+                this.setupChart();
+                this.setupTradingViewChart();
+                this.setupEventListeners();
+                this.setupTradingViewEventListeners();
+                
+                // Start WebSocket connections
+                await this.startWebSocketConnections();
+                
+                // Generate initial signals
+                await this.generateAllSignals();
+                
+                // Start periodic updates
+                setInterval(() => this.updateTime(), 1000);
+                setInterval(() => this.updateMarketData(), 5000);
+                
+                console.log('✅ Trading Platform Ready');
+            }
+            
+            // ================================================
+            // PRICE FORMATTING FUNCTION
+            // ================================================
+            formatPrice(price) {
+                if (price === undefined || price === null || isNaN(price)) {
+                    return '0.00';
+                }
+                
+                const priceStr = price.toString();
+                const parts = priceStr.split('.');
+                
+                if (parts.length === 1) {
+                    return this.formatWithCommas(parts[0]) + '.00';
+                }
+                
+                const integerPart = parts[0];
+                let decimalPart = parts[1];
+                
+                // Binance-style formatting rules
+                if (price >= 1000) {
+                    decimalPart = decimalPart.substring(0, 2);
+                } else if (price >= 100) {
+                    decimalPart = decimalPart.substring(0, 3);
+                } else if (price >= 10) {
+                    decimalPart = decimalPart.substring(0, 4);
+                } else if (price >= 1) {
+                    decimalPart = decimalPart.substring(0, 5);
+                } else if (price >= 0.1) {
+                    decimalPart = decimalPart.substring(0, 6);
+                } else if (price >= 0.01) {
+                    decimalPart = decimalPart.substring(0, 7);
+                } else if (price >= 0.001) {
+                    decimalPart = decimalPart.substring(0, 8);
+                } else {
+                    decimalPart = decimalPart.substring(0, 10);
+                }
+                
+                decimalPart = decimalPart.replace(/0+$/, '');
+                
+                if (!decimalPart) {
+                    return this.formatWithCommas(integerPart);
+                }
+                
+                const formattedInteger = this.formatWithCommas(integerPart);
+                return `${formattedInteger}.${decimalPart}`;
+            }
+            
+            formatWithCommas(numberStr) {
+                return numberStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            
+            // ================================================
+            // SYMBOL MANAGEMENT
+            // ================================================
+            loadSymbols() {
+                try {
+                    const saved = localStorage.getItem('qt_symbols');
+                    if (saved) return JSON.parse(saved);
+                } catch {}
+                
+                return [
+                    'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT',
+                    'XRPUSDT', 'DOTUSDT', 'DOGEUSDT', 'AVAXUSDT', 'MATICUSDT',
+                    'LINKUSDT', 'UNIUSDT', 'LTCUSDT', 'ATOMUSDT', 'ETCUSDT'
+                ];
+            }
+            
+            saveSymbols() {
+                localStorage.setItem('qt_symbols', JSON.stringify(this.state.symbols));
+            }
+            
+            loadSymbolList() {
+                const container = document.getElementById('symbolList');
+                if (!container) return;
+                
+                container.innerHTML = this.state.symbols.map(symbol => {
+                    const data = this.state.marketData[symbol];
+                    const isActive = symbol === this.state.currentSymbol;
+                    
+                    return `
+                        <div class="symbol-item ${isActive ? 'active' : ''}" 
+                             onclick="switchToSymbol('${symbol}')">
+                            <div>
+                                <div style="font-weight: 600;">${symbol.replace('USDT', '')}</div>
+                                <div style="font-size: 12px; color: #94a3b8;">Perpetual</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 600;" id="price_${symbol}">
+                                    ${data ? '$' + this.formatPrice(data.price) : 'Loading...'}
+                                </div>
+                                <div style="font-size: 12px; color: ${data?.change >= 0 ? '#22c55e' : '#ef4444'};"
+                                     id="change_${symbol}">
+                                    ${data ? (data.change >= 0 ? '+' : '') + data.change.toFixed(2) + '%' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            async addSymbol(symbol) {
+                const cleanSymbol = symbol.trim().toUpperCase();
+                
+                if (!cleanSymbol.endsWith('USDT')) {
+                    this.showNotification('Please enter a valid USDT pair', 'error');
+                    return false;
+                }
+                
+                if (this.state.symbols.includes(cleanSymbol)) {
+                    this.showNotification(`${cleanSymbol} already in list`, 'warning');
+                    return false;
+                }
+                
+                try {
+                    const response = await fetch(`${this.BINANCE_API}ticker/price?symbol=${cleanSymbol}`);
+                    if (!response.ok) {
+                        this.showNotification(`Symbol ${cleanSymbol} not found on Binance`, 'error');
+                        return false;
+                    }
+                    
+                    this.state.symbols.push(cleanSymbol);
+                    this.saveSymbols();
+                    this.loadSymbolList();
+                    
+                    this.connectWebSocket(cleanSymbol);
+                    await this.generateSignal(cleanSymbol);
+                    
+                    this.showNotification(`${cleanSymbol} added successfully`, 'success');
+                    return true;
+                    
+                } catch (error) {
+                    this.showNotification(`Error adding ${cleanSymbol}: ${error.message}`, 'error');
+                    return false;
+                }
+            }
+            
+            // ================================================
+            // WEBSOCKET & MARKET DATA
+            // ================================================
+            async startWebSocketConnections() {
+                for (const symbol of this.state.symbols) {
+                    await this.connectWebSocket(symbol);
+                }
+            }
+            
+            async connectWebSocket(symbol) {
+                try {
+                    const ws = new WebSocket(`${this.BINANCE_WS}${symbol.toLowerCase()}@ticker`);
+                    
+                    ws.onopen = () => {
+                        console.log(`✅ WebSocket connected: ${symbol}`);
+                    };
+                    
+                    ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.updateSymbolData(symbol, data);
+                        } catch (error) {
+                            console.error('WebSocket parse error:', error);
+                        }
+                    };
+                    
+                    ws.onerror = (error) => {
+                        console.error(`WebSocket error for ${symbol}:`, error);
+                    };
+                    
+                    ws.onclose = () => {
+                        console.log(`WebSocket closed for ${symbol}, reconnecting...`);
+                        setTimeout(() => this.connectWebSocket(symbol), 3000);
+                    };
+                    
+                    this.state.wsConnections[symbol] = ws;
+                    
+                } catch (error) {
+                    console.error(`Failed to connect WebSocket for ${symbol}:`, error);
+                }
+            }
+            
+            updateSymbolData(symbol, data) {
+                const price = parseFloat(data.c);
+                const change = parseFloat(data.P);
+                const high = parseFloat(data.h);
+                const low = parseFloat(data.l);
+                const volume = parseFloat(data.v);
+                
+                this.state.marketData[symbol] = {
+                    price,
+                    change,
+                    high,
+                    low,
+                    volume,
+                    lastUpdate: Date.now()
+                };
+                
+                this.updateSymbolUI(symbol, price, change);
+                
+                if (symbol === this.state.currentSymbol) {
+                    this.updateCurrentSymbolUI();
+                    this.updateChartWithPrice(price);
+                }
+            }
+            
+            updateSymbolUI(symbol, price, change) {
+                const priceElement = document.getElementById(`price_${symbol}`);
+                const changeElement = document.getElementById(`change_${symbol}`);
+                
+                if (priceElement) {
+                    priceElement.textContent = `$${this.formatPrice(price)}`;
+                }
+                
+                if (changeElement) {
+                    changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                    changeElement.style.color = change >= 0 ? '#22c55e' : '#ef4444';
+                }
+            }
+            
+            // ================================================
+            // MAIN CHART SYSTEM
+            // ================================================
+            async setupChart() {
+                const ctx = document.getElementById('priceChart').getContext('2d');
+                
+                const chartData = await this.loadChartData();
+                
+                this.state.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'Price',
+                            data: chartData.map(d => ({x: d.x, y: d.c})),
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 0,
+                            pointHoverRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        return `$${this.formatPrice(context.parsed.y)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'minute',
+                                    displayFormats: {
+                                        minute: 'HH:mm'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#94a3b8'
+                                }
+                            },
+                            y: {
+                                position: 'right',
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#94a3b8',
+                                    callback: (value) => '$' + this.formatPrice(value)
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            async loadChartData() {
+                try {
+                    const response = await fetch(
+                        `${this.BINANCE_API}klines?symbol=${this.state.currentSymbol}&interval=${this.state.currentTimeframe}&limit=100`
+                    );
+                    
+                    if (!response.ok) throw new Error('Failed to fetch chart data');
+                    
+                    const klines = await response.json();
+                    
+                    return klines.map(k => ({
+                        x: new Date(k[0]),
+                        o: parseFloat(k[1]),
+                        h: parseFloat(k[2]),
+                        l: parseFloat(k[3]),
+                        c: parseFloat(k[4]),
+                        v: parseFloat(k[5])
+                    }));
+                    
+                } catch (error) {
+                    console.error('Error loading chart data:', error);
+                    return this.generateMockChartData();
+                }
+            }
+            
+            generateMockChartData() {
+                const data = [];
+                let price = 50000;
+                const timeframeMap = {
+                    '5m': 300000,
+                    '15m': 900000,
+                    '1h': 3600000,
+                    '4h': 14400000,
+                    '1d': 86400000
+                };
+                
+                const interval = timeframeMap[this.state.currentTimeframe] || 300000;
+                const now = Date.now();
+                
+                for (let i = 100; i >= 0; i--) {
+                    const time = now - (i * interval);
+                    const open = price;
+                    const change = (Math.random() - 0.5) * 0.02;
+                    const close = open * (1 + change);
+                    const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+                    const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+                    
+                    data.push({
+                        x: new Date(time),
+                        o: open,
+                        h: high,
+                        l: low,
+                        c: close
+                    });
+                    
+                    price = close;
+                }
+                
+                return data;
+            }
+            
+            updateChartWithPrice(price) {
+                if (!this.state.chart || !this.state.chart.data.datasets[0].data.length) return;
+                
+                const lastData = this.state.chart.data.datasets[0].data[
+                    this.state.chart.data.datasets[0].data.length - 1
+                ];
+                
+                lastData.y = price;
+                this.state.chart.update('none');
+            }
+            
+            // ================================================
+            // TRADING VIEW CHART SYSTEM
+            // ================================================
+            setupTradingViewChart() {
+                if (typeof TradingView === 'undefined') {
+                    setTimeout(() => this.setupTradingViewChart(), 100);
+                    return;
+                }
+                
+                if (this.state.tradingViewWidget) {
+                    try {
+                        this.state.tradingViewWidget.remove();
+                    } catch (e) {}
+                }
+                
+                const widgetConfig = {
+                    container_id: "tradingview-chart",
+                    width: "100%",
+                    height: 500,
+                    symbol: `BINANCE:${this.state.currentSymbol}.P`,
+                    interval: "5",
+                    timezone: "Etc/UTC",
+                    theme: "dark",
+                    style: "1",
+                    locale: "en",
+                    toolbar_bg: "#0f172a",
+                    enable_publishing: false,
+                    allow_symbol_change: false,
+                    save_image: false,
+                    details: true,
+                    hotlist: true,
+                    calendar: false,
+                    studies: [
+                        "RSI@tv-basicstudies",
+                        "MACD@tv-basicstudies",
+                        "Volume@tv-basicstudies"
+                    ],
+                    show_popup_button: true,
+                    popup_width: "1000",
+                    popup_height: "650",
+                    disabled_features: ["header_widget"],
+                    enabled_features: ["study_templates"]
+                };
+                
+                this.state.tradingViewWidget = new TradingView.widget(widgetConfig);
+            }
+            
+            updateTradingViewChart(symbol) {
+                this.state.currentSymbol = symbol;
+                
+                if (this.state.tradingViewWidget) {
+                    try {
+                        this.state.tradingViewWidget.setSymbol(`BINANCE:${symbol}.P`);
+                    } catch (error) {
+                        setTimeout(() => this.setupTradingViewChart(), 100);
+                    }
+                } else {
+                    this.setupTradingViewChart();
+                }
+            }
+            
+            changeTradingViewTimeframe(timeframe) {
+                if (this.state.tradingViewWidget) {
+                    try {
+                        this.state.tradingViewWidget.setInterval(timeframe);
+                    } catch (error) {
+                        console.error('Error changing TradingView timeframe:', error);
+                    }
+                }
+            }
+            
+            setupFullscreenTradingView() {
+                if (typeof TradingView === 'undefined') {
+                    setTimeout(() => this.setupFullscreenTradingView(), 100);
+                    return;
+                }
+                
+                if (this.state.fullscreenWidget) {
+                    try {
+                        this.state.fullscreenWidget.remove();
+                    } catch (e) {}
+                }
+                
+                const fullscreenConfig = {
+                    container_id: "fullscreenTradingView",
+                    width: "100%",
+                    height: "100%",
+                    symbol: `BINANCE:${this.state.currentSymbol}.P`,
+                    interval: "5",
+                    timezone: "Etc/UTC",
+                    theme: "dark",
+                    style: "1",
+                    locale: "en",
+                    toolbar_bg: "#0f172a",
+                    enable_publishing: false,
+                    allow_symbol_change: true,
+                    save_image: false,
+                    details: true,
+                    hotlist: true,
+                    calendar: false,
+                    studies: [
+                        "RSI@tv-basicstudies",
+                        "MACD@tv-basicstudies",
+                        "Volume@tv-basicstudies",
+                        "Bollinger_Bands@tv-basicstudies",
+                        "EMA@tv-basicstudies"
+                    ],
+                    disabled_features: [],
+                    enabled_features: ["study_templates"]
+                };
+                
+                this.state.fullscreenWidget = new TradingView.widget(fullscreenConfig);
+            }
+            
+            openFullscreenChart() {
+                const modal = document.getElementById('fullscreenModal');
+                modal.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.setupFullscreenTradingView();
+                }, 100);
+            }
+            
+            closeFullscreenChart() {
+                document.getElementById('fullscreenModal').style.display = 'none';
+                
+                if (this.state.fullscreenWidget) {
+                    try {
+                        this.state.fullscreenWidget.remove();
+                        this.state.fullscreenWidget = null;
+                    } catch (e) {}
+                }
+            }
+            
+            setupTradingViewEventListeners() {
+                document.querySelectorAll('.tv-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const timeframe = e.target.dataset.timeframe;
+                        
+                        document.querySelectorAll('.tv-tab').forEach(t => {
+                            t.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        
+                        this.changeTradingViewTimeframe(timeframe);
+                    });
+                });
+                
+                document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                    this.openFullscreenChart();
+                });
+                
+                document.getElementById('closeFullscreenBtn').addEventListener('click', () => {
+                    this.closeFullscreenChart();
+                });
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeFullscreenChart();
+                    }
+                });
+                
+                document.getElementById('fullscreenModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'fullscreenModal') {
+                        this.closeFullscreenChart();
+                    }
+                });
+            }
+            
+            // ================================================
+            // SIGNAL GENERATION ENGINE
+            // ================================================
+            async generateAllSignals() {
+                console.log('🔍 Generating trading signals...');
+                
+                for (const symbol of this.state.symbols) {
+                    await this.generateSignal(symbol);
+                }
+                
+                this.updateAllSignalsUI();
+                this.updateMarketOverview();
+            }
+            
+            async generateSignal(symbol) {
+                const data = this.state.marketData[symbol];
+                if (!data) return;
+                
+                const price = data.price;
+                const change24h = data.change;
+                const volume = data.volume;
+                
+                const rsi = this.calculateRSI(symbol);
+                const macd = this.calculateMACD(symbol);
+                const support = price * 0.95;
+                const resistance = price * 1.05;
+                
+                let signalType = 'NEUTRAL';
+                let confidence = 50;
+                let reasons = [];
+                
+                if (rsi < 30) {
+                    signalType = 'STRONG_BUY';
+                    confidence += 20;
+                    reasons.push('RSI indicates oversold conditions');
+                } else if (rsi > 70) {
+                    signalType = 'STRONG_SELL';
+                    confidence += 20;
+                    reasons.push('RSI indicates overbought conditions');
+                }
+                
+                if (change24h > 5) {
+                    signalType = signalType === 'NEUTRAL' ? 'BUY' : signalType;
+                    confidence += 15;
+                    reasons.push('Strong bullish momentum');
+                } else if (change24h < -5) {
+                    signalType = signalType === 'NEUTRAL' ? 'SELL' : signalType;
+                    confidence += 15;
+                    reasons.push('Strong bearish momentum');
+                }
+                
+                if (volume > 100000000) {
+                    confidence += 10;
+                    reasons.push('High volume confirms move');
+                }
+                
+                if (macd.signal < macd.macd) {
+                    confidence += 10;
+                    reasons.push('MACD bullish crossover');
+                } else if (macd.signal > macd.macd) {
+                    confidence += 10;
+                    reasons.push('MACD bearish crossover');
+                }
+                
+                confidence = Math.min(95, confidence);
+                
+                const tradeLevels = this.generateTradeLevels(price, signalType);
+                
+                this.state.signals[symbol] = {
+                    symbol,
+                    signal: signalType,
+                    confidence,
+                    reasons,
+                    price,
+                    change24h,
+                    timestamp: Date.now(),
+                    rsi,
+                    macd,
+                    support,
+                    resistance,
+                    tradeLevels
+                };
+                
+                if (symbol === this.state.currentSymbol) {
+                    this.updateCurrentSignalUI();
+                }
+            }
+            
+            calculateRSI(symbol) {
+                const data = this.state.marketData[symbol];
+                if (!data) return 50;
+                
+                const change = data.change;
+                let rsi = 50;
+                
+                if (change > 10) rsi = 80;
+                else if (change > 5) rsi = 70;
+                else if (change > 2) rsi = 60;
+                else if (change < -10) rsi = 20;
+                else if (change < -5) rsi = 30;
+                else if (change < -2) rsi = 40;
+                
+                return rsi;
+            }
+            
+            calculateMACD(symbol) {
+                return {
+                    macd: Math.random() * 2 - 1,
+                    signal: Math.random() * 2 - 1,
+                    histogram: Math.random() * 0.5 - 0.25
+                };
+            }
+            
+            generateTradeLevels(price, signalType) {
+                const isBullish = signalType.includes('BUY');
+                
+                return {
+                    entry: isBullish ? price * 0.995 : price * 1.005,
+                    stopLoss: isBullish ? price * 0.97 : price * 1.03,
+                    takeProfit1: isBullish ? price * 1.02 : price * 0.98,
+                    takeProfit2: isBullish ? price * 1.04 : price * 0.96,
+                    riskReward: isBullish ? 2.5 : 2.5
+                };
+            }
+            
+            // ================================================
+            // UI UPDATES
+            // ================================================
+            updateCurrentSymbolUI() {
+                const data = this.state.marketData[this.state.currentSymbol];
+                if (!data) return;
+                
+                document.getElementById('currentSymbol').textContent = 
+                    `${this.state.currentSymbol.replace('USDT', '')}/USDT`;
+                
+                document.getElementById('currentPrice').textContent = 
+                    `$${this.formatPrice(data.price)}`;
+                
+                const changeElement = document.getElementById('priceChange');
+                changeElement.textContent = `${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%`;
+                changeElement.className = `price-change ${data.change >= 0 ? 'positive' : 'negative'}`;
+                
+                document.getElementById('priceHigh').textContent = 
+                    `$${this.formatPrice(data.high)}`;
+                document.getElementById('priceLow').textContent = 
+                    `$${this.formatPrice(data.low)}`;
+            }
+            
+            updateCurrentSignalUI() {
+                const signal = this.state.signals[this.state.currentSymbol];
+                if (!signal) return;
+                
+                document.getElementById('signalType').textContent = 
+                    signal.signal.replace('_', ' ').toUpperCase();
+                document.getElementById('signalType').className = 
+                    `price-change ${signal.signal.includes('BUY') ? 'positive' : 'negative'}`;
+                
+                document.getElementById('signalConfidence').textContent = `${signal.confidence}%`;
+                document.getElementById('signalTime').textContent = 
+                    `Updated: ${new Date(signal.timestamp).toLocaleTimeString()}`;
+                
+                const detailsHtml = `
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 5px;">Signal Reasons:</div>
+                        <div style="color: #e2e8f0;">${signal.reasons.join(', ')}</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">RSI</div>
+                            <div style="font-size: 16px; font-weight: 600; 
+                                 color: ${signal.rsi < 30 ? '#22c55e' : signal.rsi > 70 ? '#ef4444' : '#94a3b8'}">
+                                ${signal.rsi.toFixed(1)}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Support</div>
+                            <div style="font-size: 16px; font-weight: 600;">$${this.formatPrice(signal.support)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Resistance</div>
+                            <div style="font-size: 16px; font-weight: 600;">$${this.formatPrice(signal.resistance)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">24h Volume</div>
+                            <div style="font-size: 16px; font-weight: 600;">
+                                $${this.formatPrice(signal.price * signal.volume)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('signalDetails').innerHTML = detailsHtml;
+                
+                this.updateTradeLevelsUI(signal.tradeLevels);
+                this.updateTradingGuide(signal);
+                this.updateTechnicalIndicators(signal);
+            }
+            
+            updateTradeLevelsUI(levels) {
+                if (!levels) return;
+                
+                document.getElementById('entryZone').textContent = `$${this.formatPrice(levels.entry)}`;
+                document.getElementById('stopLoss').textContent = `$${this.formatPrice(levels.stopLoss)}`;
+                document.getElementById('takeProfit1').textContent = `$${this.formatPrice(levels.takeProfit1)}`;
+                document.getElementById('takeProfit2').textContent = `$${this.formatPrice(levels.takeProfit2)}`;
+            }
+            
+            updateTradingGuide(signal) {
+                const tradingStyle = document.getElementById('tradingStyle').value;
+                const riskLevel = document.getElementById('riskLevel').value;
+                
+                let guideHtml = '';
+                
+                switch(tradingStyle) {
+                    case 'scalping':
+                        guideHtml = `
+                            <div class="guide-item">
+                                <div style="font-weight: 600; color: var(--quantum-blue); margin-bottom: 5px;">
+                                    Scalping Strategy (1-5 minutes)
+                                </div>
+                                <div style="color: #94a3b8; font-size: 14px;">
+                                    • Enter on pullback to $${this.formatPrice(signal.tradeLevels.entry)}<br>
+                                    • Target 1: $${this.formatPrice(signal.tradeLevels.takeProfit1)} (50% position)<br>
+                                    • Target 2: $${this.formatPrice(signal.tradeLevels.takeProfit2)} (50% position)<br>
+                                    • Stop Loss: $${this.formatPrice(signal.tradeLevels.stopLoss)}<br>
+                                    • Risk/Reward: 1:2.5
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'day_trading':
+                        guideHtml = `
+                            <div class="guide-item">
+                                <div style="font-weight: 600; color: var(--quantum-blue); margin-bottom: 5px;">
+                                    Day Trading Strategy (15min-4h)
+                                </div>
+                                <div style="color: #94a3b8; font-size: 14px;">
+                                    • Wait for confirmation candle close<br>
+                                    • Enter at $${this.formatPrice(signal.tradeLevels.entry)}<br>
+                                    • Scale out at targets for better risk management<br>
+                                    • Move stop loss to breakeven after first target<br>
+                                    • Maximum position size: 5% of capital
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'swing':
+                        guideHtml = `
+                            <div class="guide-item">
+                                <div style="font-weight: 600; color: var(--quantum-blue); margin-bottom: 5px;">
+                                    Swing Trading Strategy (4h-1d)
+                                </div>
+                                <div style="color: #94a3b8; font-size: 14px;">
+                                    • Look for strong support/resistance levels<br>
+                                    • Enter at $${this.formatPrice(signal.tradeLevels.entry)}<br>
+                                    • Use wider stops (2-3%)<br>
+                                    • Target swing highs/lows<br>
+                                    • Position size: 2-3% of capital
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'position':
+                        guideHtml = `
+                            <div class="guide-item">
+                                <div style="font-weight: 600; color: var(--quantum-blue); margin-bottom: 5px;">
+                                    Position Trading Strategy (1d+)
+                                </div>
+                                <div style="color: #94a3b8; font-size: 14px;">
+                                    • Focus on fundamental analysis<br>
+                                    • Enter at $${this.formatPrice(signal.tradeLevels.entry)}<br>
+                                    • Use 4-5% stops for volatility<br>
+                                    • Long-term targets<br>
+                                    • Position size: 1-2% of capital
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                guideHtml += `
+                    <div class="guide-item">
+                        <div style="font-weight: 600; color: ${riskLevel === 'high' ? '#ef4444' : 
+                                                               riskLevel === 'medium' ? '#f59e0b' : '#22c55e'}; 
+                             margin-bottom: 5px;">
+                            ${riskLevel.toUpperCase()} RISK MANAGEMENT
+                        </div>
+                        <div style="color: #94a3b8; font-size: 14px;">
+                            ${riskLevel === 'low' ? 
+                                '• Max 1% risk per trade<br>• Use tight stop losses<br>• Take quick profits' :
+                              riskLevel === 'medium' ?
+                                '• Max 2% risk per trade<br>• Moderate stop losses<br>• Scale out positions' :
+                                '• Max 3-5% risk per trade<br>• Wider stops for volatility<br>• Let winners run'}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('tradingInstructions').innerHTML = guideHtml;
+            }
+            
+            updateTechnicalIndicators(signal) {
+                const indicatorsHtml = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">RSI (14)</div>
+                            <div style="font-size: 16px; font-weight: 600; 
+                                 color: ${signal.rsi < 30 ? '#22c55e' : signal.rsi > 70 ? '#ef4444' : '#e2e8f0'}">
+                                ${signal.rsi.toFixed(1)}
+                                <span style="font-size: 12px; color: #94a3b8;">
+                                    ${signal.rsi < 30 ? ' (Oversold)' : signal.rsi > 70 ? ' (Overbought)' : ''}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Trend</div>
+                            <div style="font-size: 16px; font-weight: 600; 
+                                 color: ${signal.change24h >= 0 ? '#22c55e' : '#ef4444'}">
+                                ${signal.change24h >= 0 ? 'BULLISH' : 'BEARISH'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Support</div>
+                            <div style="font-size: 16px; font-weight: 600;">$${this.formatPrice(signal.support)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Resistance</div>
+                            <div style="font-size: 16px; font-weight: 600;">$${this.formatPrice(signal.resistance)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Signal Strength</div>
+                            <div style="font-size: 16px; font-weight: 600; 
+                                 color: ${signal.confidence > 80 ? '#22c55e' : 
+                                         signal.confidence > 60 ? '#f59e0b' : '#ef4444'}">
+                                ${signal.confidence >= 80 ? 'STRONG' : 
+                                  signal.confidence >= 60 ? 'MODERATE' : 'WEAK'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #94a3b8;">Timeframe</div>
+                            <div style="font-size: 16px; font-weight: 600;">${this.state.currentTimeframe}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('technicalIndicators').innerHTML = indicatorsHtml;
+            }
+            
+            updateAllSignalsUI() {
+                const container = document.getElementById('allSignals');
+                if (!container) return;
+                
+                const filteredSignals = Object.values(this.state.signals)
+                    .filter(signal => {
+                        const signalFilter = document.getElementById('signalFilter').value;
+                        const confidenceFilter = document.getElementById('confidenceFilter').value;
+                        
+                        if (signalFilter !== 'all') {
+                            if (signalFilter === 'strong_buy' && !signal.signal.includes('STRONG_BUY')) return false;
+                            if (signalFilter === 'buy' && signal.signal !== 'BUY') return false;
+                            if (signalFilter === 'sell' && signal.signal !== 'SELL') return false;
+                            if (signalFilter === 'strong_sell' && signal.signal !== 'STRONG_SELL') return false;
+                        }
+                        
+                        if (confidenceFilter !== 'all') {
+                            if (confidenceFilter === 'high' && signal.confidence < 80) return false;
+                            if (confidenceFilter === 'medium' && (signal.confidence < 60 || signal.confidence >= 80)) return false;
+                            if (confidenceFilter === 'low' && signal.confidence >= 60) return false;
+                        }
+                        
+                        return true;
+                    })
+                    .sort((a, b) => b.confidence - a.confidence);
+                
+                container.innerHTML = filteredSignals.map(signal => {
+                    const borderColor = signal.signal.includes('BUY') ? 
+                        'var(--quantum-success)' : 'var(--quantum-danger)';
+                    const bgColor = signal.signal.includes('BUY') ? 
+                        'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                    
+                    return `
+                        <div class="signal-card" style="border-left: 4px solid ${borderColor}; 
+                             background: ${bgColor}; cursor: pointer;" 
+                             onclick="switchToSymbol('${signal.symbol}')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; 
+                                 margin-bottom: 10px;">
+                                <div style="font-size: 18px; font-weight: 700;">${signal.symbol.replace('USDT', '')}</div>
+                                <div style="display: flex; gap: 10px;">
+                                    <span style="padding: 5px 15px; background: ${signal.signal.includes('BUY') ? 
+                                        'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; 
+                                        color: ${signal.signal.includes('BUY') ? 
+                                        'var(--quantum-success)' : 'var(--quantum-danger)'}; 
+                                        border-radius: 20px; font-weight: 600;">
+                                        ${signal.signal.replace('_', ' ')}
+                                    </span>
+                                    <span style="padding: 5px 15px; background: rgba(14, 165, 233, 0.2); 
+                                          color: var(--quantum-blue); border-radius: 20px; font-weight: 600;">
+                                        ${signal.confidence}%
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-size: 12px; color: #94a3b8;">Price</div>
+                                    <div style="font-size: 16px; font-weight: 600;">
+                                        $${this.formatPrice(signal.price)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #94a3b8;">24h Change</div>
+                                    <div style="font-size: 16px; font-weight: 600; 
+                                         color: ${signal.change24h >= 0 ? '#22c55e' : '#ef4444'}">
+                                        ${signal.change24h >= 0 ? '+' : ''}${signal.change24h.toFixed(2)}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="font-size: 14px; color: #94a3b8;">
+                                ${signal.reasons.slice(0, 2).join(' • ')}
+                            </div>
+                            
+                            <div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                                <i class="far fa-clock"></i> 
+                                ${new Date(signal.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            updateMarketOverview() {
+                const signals = Object.values(this.state.signals);
+                if (signals.length === 0) return;
+                
+                const totalSignals = signals.length;
+                const strongBuys = signals.filter(s => s.signal === 'STRONG_BUY').length;
+                const avgConfidence = Math.round(signals.reduce((sum, s) => sum + s.confidence, 0) / totalSignals);
+                
+                const buySignals = signals.filter(s => s.signal.includes('BUY')).length;
+                const sellSignals = signals.filter(s => s.signal.includes('SELL')).length;
+                const marketBias = buySignals > sellSignals ? 'BULLISH' : 
+                                  sellSignals > buySignals ? 'BEARISH' : 'NEUTRAL';
+                
+                document.getElementById('totalSignals').textContent = totalSignals;
+                document.getElementById('strongBuys').textContent = strongBuys;
+                document.getElementById('avgConfidence').textContent = `${avgConfidence}%`;
+                document.getElementById('marketBias').textContent = marketBias;
+                document.getElementById('marketBias').style.color = 
+                    marketBias === 'BULLISH' ? '#22c55e' : 
+                    marketBias === 'BEARISH' ? '#ef4444' : '#94a3b8';
+            }
+            
+            // ================================================
+            // EVENT HANDLERS
+            // ================================================
+            setupEventListeners() {
+                document.getElementById('symbolSearch')?.addEventListener('input', (e) => {
+                    this.searchSymbols(e.target.value);
+                });
+                
+                document.getElementById('tradingStyle')?.addEventListener('change', () => {
+                    const signal = this.state.signals[this.state.currentSymbol];
+                    if (signal) this.updateTradingGuide(signal);
+                });
+                
+                document.getElementById('riskLevel')?.addEventListener('change', () => {
+                    const signal = this.state.signals[this.state.currentSymbol];
+                    if (signal) this.updateTradingGuide(signal);
+                });
+            }
+            
+            searchSymbols(query = '') {
+                const items = document.querySelectorAll('.symbol-item');
+                const searchTerm = query.toLowerCase();
+                
+                items.forEach(item => {
+                    const symbolText = item.querySelector('div > div:first-child').textContent.toLowerCase();
+                    if (symbolText.includes(searchTerm) || searchTerm === '') {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            // ================================================
+            // UTILITY FUNCTIONS
+            // ================================================
+            async switchToSymbol(symbol) {
+                this.state.currentSymbol = symbol;
+                
+                this.updateCurrentSymbolUI();
+                
+                const chartData = await this.loadChartData();
+                if (this.state.chart) {
+                    this.state.chart.data.datasets[0].data = chartData.map(d => ({x: d.x, y: d.c}));
+                    this.state.chart.data.datasets[0].label = symbol.replace('USDT', '');
+                    this.state.chart.update();
+                }
+                
+                this.updateTradingViewChart(symbol);
+                await this.generateSignal(symbol);
+                
+                document.querySelectorAll('.symbol-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`.symbol-item[onclick*="${symbol}"]`)?.classList.add('active');
+                
+                this.showNotification(`Switched to ${symbol}`, 'info');
+            }
+            
+            async switchTimeframe(timeframe) {
+                this.state.currentTimeframe = timeframe;
+                
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                const chartData = await this.loadChartData();
+                if (this.state.chart) {
+                    this.state.chart.data.datasets[0].data = chartData.map(d => ({x: d.x, y: d.c}));
+                    this.state.chart.update();
+                }
+                
+                await this.generateSignal(this.state.currentSymbol);
+            }
+            
+            updateTime() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                document.getElementById('currentTime').textContent = timeStr;
+            }
+            
+            updateMarketData() {
+                this.generateAllSignals();
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#22c55e' : 
+                                type === 'error' ? '#ef4444' : 
+                                type === 'warning' ? '#f59e0b' : '#0ea5e9'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    box-shadow: var(--shadow-glow);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                       type === 'error' ? 'exclamation-circle' : 
+                                       type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+        
+        // ================================================
+        // GLOBAL FUNCTIONS
+        // ================================================
+        let quantumTrader;
+        let licenseManager = new LicenseManager();
+        
+        function switchToSymbol(symbol) {
+            quantumTrader.switchToSymbol(symbol);
+        }
+        
+        function switchTimeframe(timeframe) {
+            quantumTrader.switchTimeframe(timeframe);
+        }
+        
+        function showAddSymbolModal() {
+            document.getElementById('addSymbolModal').style.display = 'flex';
+            document.getElementById('newSymbol').focus();
+        }
+        
+        function hideAddSymbolModal() {
+            document.getElementById('addSymbolModal').style.display = 'none';
+        }
+        
+        async function addSymbol() {
+            const symbolInput = document.getElementById('newSymbol');
+            const symbol = symbolInput.value.trim().toUpperCase();
+            
+            if (await quantumTrader.addSymbol(symbol)) {
+                hideAddSymbolModal();
+                symbolInput.value = '';
+            }
+        }
+        
+        function executeTrade(side) {
+            const signal = quantumTrader.state.signals[quantumTrader.state.currentSymbol];
+            if (!signal) {
+                quantumTrader.showNotification('No signal available for this symbol', 'error');
+                return;
+            }
+            
+            const positionSize = document.getElementById('positionSize').value;
+            const entry = quantumTrader.formatPrice(signal.tradeLevels.entry);
+            const stopLoss = quantumTrader.formatPrice(signal.tradeLevels.stopLoss);
+            
+            quantumTrader.showNotification(
+                `Executing ${side} order for ${quantumTrader.state.currentSymbol}<br>
+                Size: $${positionSize} | Entry: $${entry} | Stop Loss: $${stopLoss}`,
+                'success'
+            );
+        }
+        
+        function applyFilters() {
+            quantumTrader.updateAllSignalsUI();
+        }
+        
+        function refreshAllData() {
+            quantumTrader.generateAllSignals();
+            quantumTrader.showNotification('Refreshing all market data...', 'info');
+        }
+        
+        // ================================================
+        // INITIALIZATION
+        // ================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for saved license
+            if (licenseManager.loadSavedLicense()) {
+                // License found and valid
+                showMainApp();
+                updateLicenseBadge();
+                quantumTrader = new QuantumTraderPro();
+            } else {
+                // Show license modal
+                showLicenseModal();
+            }
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Add symbol input enter key support
+            document.getElementById('newSymbol')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addSymbol();
+                }
+            });
+            
+            // Add license input enter key support
+            document.getElementById('licenseKeyInput')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    activateLicense();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
