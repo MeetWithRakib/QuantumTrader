@@ -717,22 +717,20 @@
         </div>
     </div>
 
-    <script>
+       <script>
         // ================================================
-        // LICENSE MANAGEMENT SYSTEM
+        // LICENSE MANAGEMENT SYSTEM - FIXED VERSION
         // ================================================
         const LICENSE_CONFIG = {
-            VALID_LICENSE_KEY: 'QT-PRO-2024-78910', // এখানে আপনার লাইসেন্স key দিন
-            TRIAL_DAYS: 7,
+            VALID_LICENSE_KEY: 'QT-PRO-2024-78910-ABCDE', // এখানে আপনার লাইসেন্স key দিন
             API_ENDPOINT: '/api/validate'
         };
 
         class LicenseManager {
             constructor() {
                 this.isValidLicense = false;
-                this.isTrial = false;
-                this.trialExpiry = null;
                 this.licenseKey = null;
+                this.licenseType = null;
             }
 
             async validateLicense(key) {
@@ -766,92 +764,91 @@
                 return { valid: false, type: 'invalid' };
             }
 
-            activateTrial() {
-                const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + LICENSE_CONFIG.TRIAL_DAYS);
-                
-                this.isTrial = true;
-                this.isValidLicense = true;
-                this.trialExpiry = expiryDate;
-                this.licenseKey = 'TRIAL_' + Date.now();
-
-                localStorage.setItem('qt_trial_expiry', expiryDate.toISOString());
-                localStorage.setItem('qt_license_type', 'trial');
-
-                return true;
-            }
-
-            checkTrialExpiry() {
-                if (!this.isTrial) return true;
-
-                const savedExpiry = localStorage.getItem('qt_trial_expiry');
-                if (!savedExpiry) {
-                    this.isTrial = false;
-                    this.isValidLicense = false;
-                    return false;
-                }
-
-                const expiryDate = new Date(savedExpiry);
-                const now = new Date();
-
-                if (now > expiryDate) {
-                    this.isTrial = false;
-                    this.isValidLicense = false;
-                    localStorage.removeItem('qt_trial_expiry');
-                    localStorage.removeItem('qt_license_type');
-                    return false;
-                }
-
-                return true;
-            }
-
             saveLicense(key, type) {
                 this.licenseKey = key;
+                this.licenseType = type;
+                this.isValidLicense = true;
+                
+                // Save to localStorage
                 localStorage.setItem('qt_license_key', key);
                 localStorage.setItem('qt_license_type', type);
+                localStorage.setItem('qt_license_timestamp', Date.now());
+                
+                console.log('License saved to localStorage');
             }
 
             loadSavedLicense() {
                 const savedKey = localStorage.getItem('qt_license_key');
                 const savedType = localStorage.getItem('qt_license_type');
+                const savedTimestamp = localStorage.getItem('qt_license_timestamp');
 
                 if (savedKey && savedType) {
                     this.licenseKey = savedKey;
+                    this.licenseType = savedType;
                     
-                    if (savedType === 'trial') {
-                        this.isTrial = true;
-                        return this.checkTrialExpiry();
-                    } else if (savedType === 'full') {
-                        this.isTrial = false;
+                    // Check if license is still valid (optional expiry check)
+                    if (savedTimestamp) {
+                        const savedTime = parseInt(savedTimestamp);
+                        const currentTime = Date.now();
+                        const oneMonth = 30 * 24 * 60 * 60 * 1000; // 30 days
+                        
+                        if (currentTime - savedTime > oneMonth) {
+                            console.log('License expired (30 days)');
+                            this.clearLicense();
+                            return false;
+                        }
+                    }
+                    
+                    // Validate the saved key
+                    if (savedKey === LICENSE_CONFIG.VALID_LICENSE_KEY) {
                         this.isValidLicense = true;
                         return true;
                     }
+                    
+                    // Check via API if online
+                    this.validateLicense(savedKey).then(result => {
+                        if (result.valid) {
+                            this.isValidLicense = true;
+                            return true;
+                        } else {
+                            this.clearLicense();
+                            return false;
+                        }
+                    }).catch(() => {
+                        // If offline, trust the saved license
+                        this.isValidLicense = true;
+                        return true;
+                    });
+                    
+                    return true;
                 }
-
+                
                 return false;
             }
 
             clearLicense() {
                 this.isValidLicense = false;
-                this.isTrial = false;
                 this.licenseKey = null;
+                this.licenseType = null;
+                
                 localStorage.removeItem('qt_license_key');
                 localStorage.removeItem('qt_license_type');
-                localStorage.removeItem('qt_trial_expiry');
+                localStorage.removeItem('qt_license_timestamp');
+                
+                console.log('License cleared from localStorage');
             }
 
             getLicenseInfo() {
                 return {
                     isValid: this.isValidLicense,
-                    isTrial: this.isTrial,
-                    key: this.licenseKey ? this.licenseKey.substring(0, 8) + '...' : null,
-                    expiry: this.trialExpiry
+                    type: this.licenseType,
+                    key: this.licenseKey ? this.licenseKey.substring(0, 8) + '...' : null
                 };
             }
         }
 
         // ================================================
-        // LICENSE MODAL FUNCTIONS
+        // LICENSE MODAL FUNCTIONS - FIXED VERSION
         // ================================================
         function showLicenseModal() {
             const modal = document.getElementById('licenseModal');
@@ -882,9 +879,6 @@
             
             if (result.valid) {
                 licenseManager.saveLicense(licenseKey, result.type);
-                licenseManager.isValidLicense = true;
-                licenseManager.isTrial = (result.type === 'trial');
-                
                 hideLicenseModal();
                 showMainApp();
                 showNotification('License activated successfully!', 'success');
@@ -893,20 +887,6 @@
                 errorElement.textContent = 'Invalid license key. Please try again.';
                 errorElement.classList.add('active');
                 document.getElementById('licenseKeyInput').select();
-            }
-        }
-
-        function useTrial() {
-            if (licenseManager.activateTrial()) {
-                hideLicenseModal();
-                showMainApp();
-                showNotification('7-day trial activated!', 'success');
-                updateLicenseBadge();
-                
-                // Show trial expiry info
-                setTimeout(() => {
-                    showNotification('Trial expires in 7 days', 'info');
-                }, 2000);
             }
         }
 
@@ -927,13 +907,8 @@
             const info = licenseManager.getLicenseInfo();
             
             if (info.isValid) {
-                if (info.isTrial) {
-                    badge.innerHTML = '<i class="fas fa-clock"></i><span>TRIAL</span>';
-                    badge.className = 'license-badge';
-                } else {
-                    badge.innerHTML = '<i class="fas fa-check-circle"></i><span>LICENSED</span>';
-                    badge.className = 'license-badge';
-                }
+                badge.innerHTML = '<i class="fas fa-check-circle"></i><span>LICENSED</span>';
+                badge.className = 'license-badge';
             } else {
                 badge.innerHTML = '<i class="fas fa-times-circle"></i><span>EXPIRED</span>';
                 badge.className = 'license-badge error';
@@ -962,11 +937,14 @@
                 this.BINANCE_WS = 'wss://fstream.binance.com/ws/';
                 this.BINANCE_API = 'https://fapi.binance.com/fapi/v1/';
                 
-                // Check license before initializing
-                if (!licenseManager.isValidLicense) {
-                    console.log('License required. Please activate license.');
-                    showLicenseModal();
-                    return;
+                // Check license - FIXED VERSION
+                if (!licenseManager || !licenseManager.isValidLicense) {
+                    console.log('Checking saved license...');
+                    if (!licenseManager.loadSavedLicense()) {
+                        console.log('No valid license found. Showing modal...');
+                        showLicenseModal();
+                        return;
+                    }
                 }
                 
                 this.init();
@@ -2163,37 +2141,33 @@
         }
         
         // ================================================
-        // INITIALIZATION
+        // NEW FUNCTION: Reset License
+        // ================================================
+        function resetLicense() {
+            if (confirm('Are you sure you want to reset the license? You will need to enter it again.')) {
+                licenseManager.clearLicense();
+                location.reload();
+            }
+        }
+        
+        // ================================================
+        // INITIALIZATION - FIXED VERSION
         // ================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Check for saved license
-            if (licenseManager.loadSavedLicense()) {
-                // License found and valid
+            console.log('QuantumTrader Pro Loading...');
+            
+            // First check if license is already saved
+            const hasSavedLicense = licenseManager.loadSavedLicense();
+            
+            if (hasSavedLicense) {
+                console.log('Saved license found and valid');
                 showMainApp();
                 updateLicenseBadge();
                 quantumTrader = new QuantumTraderPro();
             } else {
-                // Show license modal
+                console.log('No saved license found');
                 showLicenseModal();
             }
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                }
-            `;
-            document.head.appendChild(style);
             
             // Add symbol input enter key support
             document.getElementById('newSymbol')?.addEventListener('keypress', (e) => {
@@ -2203,14 +2177,23 @@
             });
             
             // Add license input enter key support
-            document.getElementById('licenseKeyInput')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    activateLicense();
-                }
+            const licenseInput = document.getElementById('licenseKeyInput');
+            if (licenseInput) {
+                licenseInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        activateLicense();
+                    }
+                });
+            }
+            
+            // Auto-focus license input when modal opens
+            document.getElementById('licenseModal')?.addEventListener('animationend', () => {
+                document.getElementById('licenseKeyInput')?.focus();
             });
         });
     </script>
 </body>
 
 </html>
+
 
