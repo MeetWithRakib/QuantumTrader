@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         
         // VALID LICENSE KEY - CHANGE THIS TO YOUR OWN KEY
         const VALID_LICENSE_KEYS = [
-            'QT-PRO-2024-78910-ABCDE'  // আপনার নিজের লাইসেন্স key দিন এখানে
+            'QT-PRO-2024-78910'  // আপনার নিজের লাইসেন্স key দিন এখানে
         ];
         
         // Check if license key is valid
@@ -49,3 +49,4 @@ export default async function handler(req, res) {
         });
     }
 }
+
