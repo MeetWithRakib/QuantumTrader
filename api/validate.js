@@ -1,4 +1,4 @@
-// License validation API
+// License validation API - UPDATED VERSION
 export default async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,21 +19,20 @@ export default async function handler(req, res) {
             });
         }
         
-        // VALID LICENSE KEY - এখানে আপনার লাইসেন্স key দিন
+        // VALID LICENSE KEY - CHANGE THIS TO YOUR OWN KEY
         const VALID_LICENSE_KEYS = [
-            'QT-PRO-2024-78910',  // আপনার মূল লাইসেন্স key
+            'QT-PRO-2024-78910-ABCDE'  // আপনার নিজের লাইসেন্স key দিন এখানে
         ];
         
         // Check if license key is valid
         const isValid = VALID_LICENSE_KEYS.includes(licenseKey);
-        const isTrial = licenseKey.startsWith('QT-TRIAL');
         
         if (isValid) {
             res.json({
                 valid: true,
-                type: isTrial ? 'trial' : 'full',
-                message: isTrial ? 'Trial license activated' : 'Full license activated',
-                expires: isTrial ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null
+                type: 'full',
+                message: 'License activated successfully',
+                timestamp: new Date().toISOString()
             });
         } else {
             res.status(401).json({
@@ -49,6 +48,4 @@ export default async function handler(req, res) {
             message: 'Server error during license validation'
         });
     }
-
 }
-
