@@ -21,8 +21,7 @@ export default async function handler(req, res) {
         
         // VALID LICENSE KEY - এখানে আপনার লাইসেন্স key দিন
         const VALID_LICENSE_KEYS = [
-            'QT-PRO-2024-78910-ABCDE',  // আপনার মূল লাইসেন্স key
-            'QT-TRIAL-2024-12345'       // ট্রায়াল key (ঐচ্ছিক)
+            'QT-PRO-2024-78910-RAKIB',  // আপনার মূল লাইসেন্স key
         ];
         
         // Check if license key is valid
@@ -50,4 +49,5 @@ export default async function handler(req, res) {
             message: 'Server error during license validation'
         });
     }
+
 }
